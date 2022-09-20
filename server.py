@@ -12,7 +12,11 @@ rl = open("log.txt" , "r")
 content = rl.readlines()
 clients = []
 welcome = "Hello!\nTo exit, type 'control' + ']'\nto send a message, type your message followed by the enter key\nClients connected: "
-newClientStr = "\na new client has connected\n"
+newClientStr = f"\na new client has connected, there are "
+
+def disconnect(conn):
+  clients.remove(conn)
+  conn.close
 
 def init():
   s.bind((HOST, PORT))
@@ -35,8 +39,8 @@ def newClient(newClientStr, clients, welcome, conn):
     clientCount = str(len(clients)) + " clients connected\n"
     for client in clients:
       if client != conn:
-        client.sendall(bytes(newClientStr, "ascii"))
-    currentClient.sendall(bytes(str(welcome + clientCount + "Please enter your nickname; if left empty, will default to IP Address\n"), "ascii"))
+        client.sendall(bytes(newClientStr + clientCount, "ascii"))
+    currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "ascii"))
     print("client welcome'd")
 
 def connection(conn, addr, clients, newClientStr, welcome):
@@ -49,20 +53,31 @@ def connection(conn, addr, clients, newClientStr, welcome):
     print(f"Incoming connection from {addr}")
     newClient(newClientStr, clients, welcome, addr)
     while True:
-      input = str(conn.recv(1024), "ascii")
+      input = conn.recv(1024)
+      message = str(input, "ascii")
       timestamp = datetime.datetime.now()
-      if input:
-        try:
-          incomingMessage = str(timestamp.strftime("%c") + ", " + nickname + ": " + input)
-          with open("log.txt" , "a") as wl:
-            print(incomingMessage)
-            wl.write(incomingMessage)
-            wl.write("\n")
-          messages = messages + 2
-          sending(clients, conn, incomingMessage)
-        except:
-          clients.remove(conn)
-          conn.close
-          break
+      print("*" + str(bytes(input)) + "*")
+      try:
+        if input != bytes(b'\r\n') and input != bytes(b'\x1b[A\r\n') and input != bytes(b'\x1b[B\r\n') and input != bytes(b'\x1b[C\r\n') and input != bytes(b'\x1b[D\r\n'):
+          print(message)
+          if input == bytes(b'exit\r\n'):
+            print("bruh")
+            disconnect(conn)
+            break
+          if message.startswith("/nickname"):
+            nickname = message[10:].replace("\r\n", "")
+          else:
+            incomingMessage = str(timestamp.strftime("%c") + ", " + nickname + ": " + message)
+            with open("log.txt" , "a") as wl:
+              print(incomingMessage)
+              wl.write(incomingMessage)
+              wl.write("\n")
+            messages = messages + 2
+            sending(clients, conn, incomingMessage)
+        elif input == bytes(b'\r\n'):
+          pass
+      except:
+        disconnect(conn)
+        break
   
 init()
