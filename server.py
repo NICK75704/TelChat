@@ -18,11 +18,10 @@ def disconnect(conn, clients, clientCount):
   for client in clients:
     if client != conn:
       with open("log.txt") as rl:
-        reply = str(str("client disconnected " + clientCount + " clients connected"))
+        reply = str(str("\nclient disconnected; " + str(len(clients) - 1) + " clients connected\n\n"))
         client.sendall(bytes(reply, "ascii"))
         print("message sent!")
-  clients.remove(conn)
-  conn.close
+  
 
 def init():
   s.bind((HOST, PORT))
@@ -45,7 +44,7 @@ def newClient(newClientStr, clients, welcome, conn):
     clientCount = str(len(clients)) + " clients connected\n"
     for client in clients:
       if client != conn:
-        client.sendall(bytes(newClientStr + clientCount, "ascii"))
+        client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "ascii"))
     currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "ascii"))
     print("client welcome'd")
 
@@ -67,12 +66,16 @@ def connection(conn, addr, clients, newClientStr, welcome):
       try:
         if input == bytes(b''):
           disconnect(conn, clients, clientCount)
+          clients.remove(conn)
+          conn.close
           break
         if input != bytes(b'\r\n') and input != bytes(b'\x1b[A\r\n') and input != bytes(b'\x1b[B\r\n') and input != bytes(b'\x1b[C\r\n') and input != bytes(b'\x1b[D\r\n'):
           print(message)
           if input == bytes(b'exit\r\n'):
             print("bruh")
             disconnect(conn, clients, clientCount)
+            clients.remove(conn)
+            conn.close
             break
           if message.startswith("/nickname"):
             nickname = message[10:].replace("\r\n", "")
@@ -87,7 +90,9 @@ def connection(conn, addr, clients, newClientStr, welcome):
         elif input == bytes(b'\r\n'):
           pass
       except:
-        disconnect(conn)
+        disconnect(conn, clients, clientCount)
+        clients.remove(conn)
+        conn.close
         break
   
 init()
