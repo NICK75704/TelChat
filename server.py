@@ -20,8 +20,7 @@ def disconnect(conn, clients, clientCount):
       with open("log.txt") as rl:
         reply = str(str("\nclient disconnected; " + str(len(clients) - 1) + " clients connected\n\n"))
         client.sendall(bytes(reply, "ascii"))
-        print("message sent!")
-  
+        print("message sent!") 
 
 def init():
   s.bind((HOST, PORT))
@@ -32,12 +31,15 @@ def init():
     threadClient.start()
 
 def sending(clients, conn, outgoingMessage):
+  print("sending message")
   for client in clients:
     if client != conn:
       with open("log.txt") as rl:
-        reply = str(str("\n" + outgoingMessage + "\n"))
-        client.sendall(bytes(reply, "ascii"))
+        reply = str(str("\n" + outgoingMessage + "\n" + "\b"))
+        client.sendall(bytes(reply , "ascii"))
         print("message sent!")
+        sleep(0.0005)
+      
 
 def newClient(newClientStr, clients, welcome, conn):
     currentClient = clients[-1]
@@ -64,12 +66,12 @@ def connection(conn, addr, clients, newClientStr, welcome):
       timestamp = datetime.datetime.now()
       print("*" + str(bytes(input)) + "*")
       try:
-        if input == bytes(b''):
-          disconnect(conn, clients, clientCount)
-          clients.remove(conn)
-          conn.close
-          break
         if input != bytes(b'\r\n') and input != bytes(b'\x1b[A\r\n') and input != bytes(b'\x1b[B\r\n') and input != bytes(b'\x1b[C\r\n') and input != bytes(b'\x1b[D\r\n'):
+          if input == bytes(b''):
+            disconnect(conn, clients, clientCount)
+            clients.remove(conn)
+            conn.close
+            break
           print(message)
           if input == bytes(b'exit\r\n'):
             print("bruh")
@@ -90,9 +92,6 @@ def connection(conn, addr, clients, newClientStr, welcome):
         elif input == bytes(b'\r\n'):
           pass
       except:
-        disconnect(conn, clients, clientCount)
-        clients.remove(conn)
-        conn.close
         break
   
 init()
