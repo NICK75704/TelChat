@@ -45,8 +45,7 @@ def newClient(newClientStr, clients, welcome, conn):
     currentClient = clients[-1]
     clientCount = str(len(clients)) + " clients connected\n"
     for client in clients:
-      if client != conn:
-        client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "utf-8"))
+      client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "utf-8"))
     currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "utf-8"))
     print("client welcome'd")
 
@@ -79,7 +78,7 @@ def connection(conn, addr, clients, newClientStr, welcome):
             clients.remove(conn)
             conn.close
             break
-          if message.startswith("/nickname"):
+          if message.startswith("\\nickname"):
             nickname = message[10:].replace("\r\n", "")
           else:
             incomingMessage = str(timestamp.strftime("%c") + ", " + nickname + ": " + message)
