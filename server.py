@@ -33,19 +33,19 @@ def init():
 def sending(clients, conn, outgoingMessage):
   print("sending message")
   for client in clients:
-    if client != conn:
-      with open("log.txt") as rl:
-        reply = str(str("\n" + outgoingMessage + "\n"))
-        client.sendall(bytes(reply , "utf-8"))
-        print("message sent!")
-        sleep(0.0005)
+    with open("log.txt") as rl:
+      reply = str(str("\n" + outgoingMessage + "\n"))
+      client.sendall(bytes(reply , "utf-8"))
+      print("message sent!")
+      sleep(0.0005)
       
 
 def newClient(newClientStr, clients, welcome, conn):
     currentClient = clients[-1]
     clientCount = str(len(clients)) + " clients connected\n"
     for client in clients:
-      client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "utf-8"))
+      if client != conn:
+        client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "utf-8"))
     currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "utf-8"))
     print("client welcome'd")
 
