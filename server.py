@@ -11,7 +11,7 @@ wl = open("log.txt" , "a")
 rl = open("log.txt" , "r")
 content = rl.readlines()
 clients = []
-welcome = "Hello!\nTo exit, type 'control' + ']'\nto send a message, type your message followed by the enter key\nClients connected: "
+welcome = "Hello!\nTo exit, type 'control' + ']'\nTo send a message, type your message followed by the enter key\nTo set a nickname, type '\\nickname' followed by the desired nickname\nClients connected: "
 newClientStr = f"\na new client has connected, there are "
 
 def disconnect(conn, clients, clientCount):
@@ -19,7 +19,7 @@ def disconnect(conn, clients, clientCount):
     if client != conn:
       with open("log.txt") as rl:
         reply = str(str("\nclient disconnected; " + str(len(clients) - 1) + " clients connected\n\n"))
-        client.sendall(bytes(reply, "ascii"))
+        client.sendall(bytes(reply, "utf-8"))
         print("message sent!") 
 
 def init():
@@ -35,8 +35,8 @@ def sending(clients, conn, outgoingMessage):
   for client in clients:
     if client != conn:
       with open("log.txt") as rl:
-        reply = str(str("\n" + outgoingMessage + "\n" + "\b"))
-        client.sendall(bytes(reply , "ascii"))
+        reply = str(str("\n" + outgoingMessage + "\n"))
+        client.sendall(bytes(reply , "utf-8"))
         print("message sent!")
         sleep(0.0005)
       
@@ -46,8 +46,8 @@ def newClient(newClientStr, clients, welcome, conn):
     clientCount = str(len(clients)) + " clients connected\n"
     for client in clients:
       if client != conn:
-        client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "ascii"))
-    currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "ascii"))
+        client.sendall(bytes("\n" + newClientStr + clientCount + "\n", "utf-8"))
+    currentClient.sendall(bytes(str(welcome + clientCount + "\n"), "utf-8"))
     print("client welcome'd")
 
 def connection(conn, addr, clients, newClientStr, welcome):
@@ -62,7 +62,7 @@ def connection(conn, addr, clients, newClientStr, welcome):
     while True:
       clientCount = str(len(clients))
       input = conn.recv(1024)
-      message = str(input, "ascii")
+      message = str(input, "utf-8")
       timestamp = datetime.datetime.now()
       print("*" + str(bytes(input)) + "*")
       try:
