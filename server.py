@@ -34,7 +34,7 @@ def sending(clients, conn, outgoingMessage):
   print("sending message")
   for client in clients:
     with open("log.txt") as rl:
-      reply = str(str("\n" + outgoingMessage + "\n"))
+      reply = str(outgoingMessage)
       client.sendall(bytes(reply , "utf-8"))
       print("message sent!")
       sleep(0.0005)
